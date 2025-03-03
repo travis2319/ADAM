@@ -1,0 +1,52 @@
+# Node.js and React Native (ADAM-APP)
+ADAM-APP/node_modules/
+ADAM-APP/.expo/
+ADAM-APP/.expo-shared/
+ADAM-APP/android/.gradle/
+ADAM-APP/android/app/build/
+ADAM-APP/ios/Pods/
+ADAM-APP/ios/build/
+ADAM-APP/web-build/
+ADAM-APP/assets/*.lock
+ADAM-APP/*.log
+
+# Python (ADAM-FASTAPI)
+ADAM-FASTAPI/__pycache__/
+ADAM-FASTAPI/*.pyc
+ADAM-FASTAPI/*.pyo
+ADAM-FASTAPI/env/
+ADAM-FASTAPI/venv/
+ADAM-FASTAPI/logs/
+
+# Go (ADAM-GOLANG)
+ADAM-GOLANG/bin/
+ADAM-GOLANG/pkg/
+ADAM-GOLANG/.env
+ADAM-GOLANG/database/*.db
+
+# General IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+*.lock
+
+# Dependency directories
+node_modules/
+.env
+
+# Build artifacts
+dist/
+build/
+
+# Docker-related files
+docker-compose.override.yml
+*.tar
