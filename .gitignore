@@ -14,7 +14,7 @@ ADAM-APP/*.log
 ADAM-FASTAPI/__pycache__/
 ADAM-FASTAPI/*.pyc
 ADAM-FASTAPI/*.pyo
-ADAM-FASTAPI/env/
+ADAM-FASTAPI/.env/
 ADAM-FASTAPI/venv/
 ADAM-FASTAPI/logs/
 
