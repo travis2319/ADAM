@@ -4,7 +4,7 @@ import Profile from '@/screens/tabs/Profile'
 
 const index = () => {
   return (
-    <SafeAreaView className='flex-1 bg-[#f4f1de] p-4'>
+    <SafeAreaView className='flex-1 bg-[#f4f1de]'>
         <Profile />
     </SafeAreaView>
   )

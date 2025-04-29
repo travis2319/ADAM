@@ -16,7 +16,6 @@ import { useAuth } from '@/providers/AuthProvider';
 import { Link, router, useRouter } from 'expo-router';
 
 
-
 export default function Home() {
   const {user} = useAuth();
   let currentDate = new Date();
@@ -54,10 +53,12 @@ export default function Home() {
       
       {/* Car Image */}
       <View style={{ paddingHorizontal: 10, marginTop: -10 }}>
-        <Image 
-          source={{ uri: 'https://th.bing.com/th/id/R.e02339a312d4fa88081615dd587b87ee?rik=Nvb6s7Qnqw99BA&riu=http%3a%2f%2fi.ndtvimg.com%2fauto%2fmakers%2f29%2f198%2fmaruti-estilo.jpg&ehk=idaG%2brreG8tFC9vC6f%2fFB%2bkO7y%2fZwjcLJdW%2bnyFgsI8%3d&risl=&pid=ImgRaw&r=0' }}
-          style={{width: '100%', height: 200, borderRadius: 26,  elevation: 10 }}
-        />
+        <View style={{ width: '100%', height: 200, borderRadius: 26, elevation: 10, overflow: 'hidden' }}>
+          <Image 
+            source={{ uri: 'https://th.bing.com/th/id/R.e02339a312d4fa88081615dd587b87ee?rik=Nvb6s7Qnqw99BA&riu=http%3a%2f%2fi.ndtvimg.com%2fauto%2fmakers%2f29%2f198%2fmaruti-estilo.jpg&ehk=idaG%2brreG8tFC9vC6f%2fFB%2bkO7y%2fZwjcLJdW%2bnyFgsI8%3d&risl=&pid=ImgRaw&r=0' }}
+            style={{ width: '100%', height: '100%' }}
+          />
+        </View>
       </View>
       
       {/* Metrics */}
@@ -146,7 +147,7 @@ export default function Home() {
           width: '50%', 
           paddingHorizontal: 4, 
           marginBottom: 8 
-        }}>
+        }} className='ml-auto' onPress={() => router.push('../../log/clog')}>
           <View style={{ 
             backgroundColor: '#e9e58f', 
             borderRadius: 12, 
@@ -180,7 +181,7 @@ export default function Home() {
           width: '50%', 
           paddingHorizontal: 4, 
           marginBottom: 8 
-        }}>
+        }} className='ml-auto' onPress={() => router.push('../temp/temp')}>
           <View style={{ 
             backgroundColor: '#ffab76', 
             borderRadius: 12, 
@@ -214,7 +215,7 @@ export default function Home() {
           width: '50%', 
           paddingHorizontal: 4, 
           marginBottom: 8 
-        }}>
+        }}className='ml-auto' onPress={() => router.push('../../(profile)')}>
           <View style={{ 
             backgroundColor: '#93c6e7', 
             borderRadius: 12, 

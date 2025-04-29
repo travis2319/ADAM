@@ -21,7 +21,7 @@ const ChatScreen: React.FC = () => {
   const userId: string = 'VOID-001'; // Ideally, get this from your auth context
   const currentTime: string = new Date().toISOString();
 
-  const baseUrl: string = 'http://192.168.242.63:8000';
+  const baseUrl: string = 'http://192.168.0.112:8000';
 
   const handleSendQuery = async () => {
     if (!query) return;
