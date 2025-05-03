@@ -1,285 +1,82 @@
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native'
-import React, { useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import axios from 'axios'
-import { MaterialCommunityIcons, FontAwesome5, FontAwesome6, FontAwesome } from '@expo/vector-icons'
-import cardData from '../../constants/cardData'
+import React from 'react';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { Ionicons, FontAwesome5, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
-const Analysis = () => {
-  interface EmissionsData {
-    summary: {
-      total_vehicle_values: number;
-      compliant_vehicle_values: number;
-      non_compliant_vehicle_values: number;
-      compliance_rate: number;
-      start_timestamp: string;
-      end_timestamp: string;
-      total_distance_traveled: number;
-      total_records: number;
-      good_condition: number;
-      needs_attention: number;
-      health_rate: number;
-    };
-  }
-  
-  const [emissionsData, setEmissionsData] = useState<EmissionsData | null>(null);
-  const [loadingEmissions, setLoadingEmissions] = useState(false);
-  const [loadingHealthMonitoring, setLoadingHealthMonitoring] = useState(false);
-  const [loadingPredictiveMaintenance, setLoadingPredictiveMaintenance] = useState(false);
+const cardData = [
+  {
+    title: 'Engine Health Monitoring',
+    icon: <MaterialCommunityIcons name="engine" size={30} color="#003f5c" />,
+    bgColor: '#D8ECFE',
+    iconBg: '#72B8F4',
+    textColor: '#003f5c',
+  },
+  {
+    title: 'Emission Compliance',
+    icon: <MaterialCommunityIcons name="car-electric" size={30} color="#006D77" />,
+    bgColor: '#C5F5F9',
+    iconBg: '#71DDEB',
+    textColor: '#006D77',
+  },
+  {
+    title: 'Driving Behavior Analysis',
+    icon: <Ionicons name="car-sport" size={30} color="#8B2E2E" />,
+    bgColor: '#FFD8C5',
+    iconBg: '#FF9C75',
+    textColor: '#8B2E2E',
+  },
+  {
+    title: 'Predictive Maintenance',
+    icon: <MaterialIcons name="build-circle" size={30} color="#5A5A00" />,
+    bgColor: '#FFF5C5',
+    iconBg: '#E1D55A',
+    textColor: '#5A5A00',
+  },
+];
 
-  const [healthMonitoringDisabled, setHealthMonitoringDisabled] = useState(false);
-  const [emissionsDisabled, setEmissionsDisabled] = useState(false);
-  const [predictiveMaintenanceDisabled, setPredictiveMaintenanceDisabled] = useState(false);
+export default function AnalysisScreen() {
+  const navigation = useNavigation();
 
-  interface HealthMonitoringData {
-    summary: {
-      total_vehicle_values: number;
-      compliant_vehicle_values: number;
-      non_compliant_vehicle_values: number;
-      compliance_rate: number;
-      start_timestamp: string;
-      end_timestamp: string;
-      total_distance_traveled: number;
-    };
-  }
-
-  const [healthMonitoringData, setHealthMonitoringData] = useState<HealthMonitoringData | null>(null);
-  interface PredictiveMaintenanceData {
-    summary: {
-      timestamp: string;
-      total_vehicles: number;
-      status_distribution: {
-        Critical: number;
-        Warning: number;
-        Good: number;
-      };
-      critical_systems: {
-        engine: number;
-        coolant: number;
-        fuel: number;
-        brake_wear: number;
-      };
-      maintenance_required: {
-        immediate_attention: number;
-        soon_attention: number;
-        good_condition: number;
-      };
-    };
-  }
-  
-  const [predictiveMaintenanceData, setPredictiveMaintenanceData] = useState<PredictiveMaintenanceData | null>(null);
-
-  const baseURL = 'http://192.168.251.63:8000';
-
-  const fetchEmissionsData = async () => {
-    setLoadingEmissions(true);
-    setEmissionsDisabled(true);
-    try {
-      const response = await axios.get(`${baseURL}/emissions/compliance-and-plot-data`, {
-        auth: {
-          username: 'user',
-          password: 'password'
-        }
-      });
-      setEmissionsData(response.data);
-      console.log(JSON.stringify(response.data, null, 2));
-    } catch (error) {
-      console.error('Fetch error:', error);
-    } finally {
-      setLoadingEmissions(false);
-      setEmissionsDisabled(false);
-    }
-  };
-
-  const fetchHealthMonitoringData = async () => {
-    setLoadingHealthMonitoring(true);
-    setHealthMonitoringDisabled(true);
-    try {
-      const response = await axios.get(`${baseURL}/engine-health/diagnose`, {
-        auth: {
-          username: 'user',
-          password: 'password'
-        }
-      });
-      setHealthMonitoringData(response.data);
-      console.log(JSON.stringify(response.data, null, 2));
-    } catch (error) {
-      console.error('Fetch error:', error);
-    } finally {
-      setLoadingHealthMonitoring(false);
-      setHealthMonitoringDisabled(false);
-    }
-  };
-  
-  const fetchPredictiveMaintenanceData = async () => {
-    setLoadingPredictiveMaintenance(true);
-    setPredictiveMaintenanceDisabled(true);
-    try {
-      const response = await axios.get(`${baseURL}/predictive-maintenance/diagnose`, {
-        auth: {
-          username: 'user',
-          password: 'password'
-        }
-      });
-      setPredictiveMaintenanceData(response.data);
-      console.log(JSON.stringify(response.data, null, 2));
-    } catch (error) {
-      console.error('Fetch error:', error);
-    } finally {
-      setLoadingPredictiveMaintenance(false);
-      setPredictiveMaintenanceDisabled(false);
-    }
-  };
   return (
-    <SafeAreaView className="flex-1 bg-[#f1f4de]">
-      <ScrollView>
-        <View className='flex-1 p-12 bg-[#f1f4de] gap-6'>
-        
-          <View  className={`bg-[#C4E3FA] rounded-2xl shadow-md p-7 relative`}>
-            <View className={`absolute -top-4 -left-4 bg-[#54B0E3] rounded-full p-4 shadow-md`}>                
-                <MaterialCommunityIcons name='engine' size={32} color="#000000" />
-            </View>
-            <Text className="text-base font-bold mb-16 ml-8 text-black">
-            Engine Health Monitoring
-            </Text>
-            {loadingHealthMonitoring ? (
-              <ActivityIndicator size="large" color="#0000ff" />
-            ) : (
-              healthMonitoringData && (
-                <View>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Total Records: {healthMonitoringData.summary.total_records}
-                  </Text>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Good Condition: {healthMonitoringData.summary.good_condition}
-                  </Text>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Needs Attention: {healthMonitoringData.summary.needs_attention}
-                  </Text>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Health Rate: {healthMonitoringData.summary.health_rate}%
-                  </Text>
-                </View>
-              )
-            )}
-            <TouchableOpacity 
-              className={`self-end bg-[#54B0E3] rounded-full p-3 ${healthMonitoringDisabled ? 'opacity-50' : ''}`} 
-              onPress={fetchHealthMonitoringData}
-              disabled={healthMonitoringDisabled}
-            >
-              <FontAwesome6 name="searchengin" size={26} color="#000000" />
-            </TouchableOpacity>
+    <ScrollView style={{ flex: 1, backgroundColor: '#EAF8FF', padding: 20, paddingTop: 70 }}>
+      
+      {/* Feature Cards */}
+      {cardData.map((item, index) => (
+        <View key={index} style={{
+          flexDirection: 'row',
+          backgroundColor: item.bgColor,
+          borderRadius: 20,
+          marginBottom: 25,
+          padding: 20,
+          height: 140,
+          alignItems: 'flex-start',
+        }}>
+          {/* Icon Circle */}
+          <View style={{
+            backgroundColor: item.iconBg,
+            borderRadius: 999,
+            padding: 10,
+            marginRight: 15,
+            marginTop: 4,
+          }}>
+            {item.icon}
           </View>
 
-          <View  className={`bg-[#A8E7E3] rounded-2xl shadow-md p-7 relative`}>
-            <View className={`absolute -top-4 -left-4 bg-[#39C1C5] rounded-full p-4 shadow-md`}>                
-                <FontAwesome5 name='shipping-fast' size={32} color="#000000" />
-            </View>
-            <Text className="text-base font-bold mb-16 ml-8 text-black">
-            Emission Compliance
+          {/* Text + Analyze Button */}
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontWeight: 'bold', fontSize: 16, color: item.textColor, marginBottom: 10 }}>
+              {item.title}
             </Text>
-            {loadingEmissions ? (
-              <ActivityIndicator size="large" color="#0000ff" />
-            ) : (
-              emissionsData && (
-                <View>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Total Vehicle Values: {emissionsData.summary?.total_vehicle_values}
-                  </Text>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Compliant Vehicle Values: {emissionsData.summary?.compliant_vehicle_values}
-                  </Text>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Non-Compliant Vehicle Values: {emissionsData.summary.non_compliant_vehicle_values}
-                  </Text>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Compliance Rate: {emissionsData.summary.compliance_rate}%
-                  </Text>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Start Timestamp: {emissionsData.summary.start_timestamp}
-                  </Text>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    End Timestamp: {emissionsData.summary.end_timestamp}
-                  </Text>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Total Distance Traveled: {emissionsData.summary.total_distance_traveled} km
-                  </Text>
-                </View>
-              )
-            )}
-            <TouchableOpacity 
-              className={`self-end bg-[#39C1C5] rounded-full p-3 ${emissionsDisabled ? 'opacity-50' : ''}`} 
-              onPress={fetchEmissionsData}
-              disabled={emissionsDisabled}
-            >
-              <FontAwesome6 name="searchengin" size={26} color="#000000" />
-            </TouchableOpacity>
-          </View>
+            <View style={{ height: 10, backgroundColor: '#eee', borderRadius: 5, marginBottom: 5 }} />
+            <View style={{ height: 8, backgroundColor: '#ddd', borderRadius: 5, marginBottom: 10, width: '60%' }} />
 
-          <View  className={`bg-[#EEE79D] rounded-2xl shadow-md p-7 relative`}>
-            <View className={`absolute -top-4 -left-4 bg-[#DAC912] rounded-full p-4 shadow-md`}>                
-                <FontAwesome5 name='tools' size={32} color="#000000" />
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginTop: 15 }}>
+              <Text style={{ fontWeight: 'bold', color: item.textColor,fontSize: 16, marginRight: 5}}>Analyze</Text>
+              <Ionicons name="search" size={20} color={item.textColor} />
             </View>
-            <Text className="text-base font-bold mb-16 ml-8 text-black">
-            Predictive Maintenance
-            </Text>
-            {loadingPredictiveMaintenance ? (
-              <ActivityIndicator size="large" color="#0000ff" />
-            ) : (
-              predictiveMaintenanceData && (
-                <View>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Timestamp: {predictiveMaintenanceData.summary.timestamp}
-                  </Text>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Total Vehicles: {predictiveMaintenanceData.summary.total_vehicles}
-                  </Text>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Critical: {predictiveMaintenanceData.summary.status_distribution.Critical}
-                  </Text>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Warning: {predictiveMaintenanceData.summary.status_distribution.Warning}
-                  </Text>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Good: {predictiveMaintenanceData.summary.status_distribution.Good}
-                  </Text>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Engine: {predictiveMaintenanceData.summary.critical_systems.engine}%
-                  </Text>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Coolant: {predictiveMaintenanceData.summary.critical_systems.coolant}%
-                  </Text>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Fuel: {predictiveMaintenanceData.summary.critical_systems.fuel}%
-                  </Text>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Brake Wear: {predictiveMaintenanceData.summary.critical_systems.brake_wear}%
-                  </Text>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Immediate Attention: {predictiveMaintenanceData.summary.maintenance_required.immediate_attention}
-                  </Text>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Soon Attention: {predictiveMaintenanceData.summary.maintenance_required.soon_attention}
-                  </Text>
-                  <Text className="text-base font-bold mb-2 ml-8 text-black">
-                    Good Condition: {predictiveMaintenanceData.summary.maintenance_required.good_condition}
-                  </Text>
-                </View>
-              )
-            )}
-            <TouchableOpacity 
-              className={`self-end bg-[#DAC912] rounded-full p-3 ${predictiveMaintenanceDisabled ? 'opacity-50' : ''}`} 
-              onPress={fetchPredictiveMaintenanceData}
-              disabled={predictiveMaintenanceDisabled}
-            >
-              <FontAwesome6 name="searchengin" size={26} color="#000000" />
-            </TouchableOpacity>
           </View>
         </View>
-        
-      </ScrollView>
-    </SafeAreaView>
-  )
+      ))}
+    </ScrollView>
+  );
 }
-
-export default Analysis
