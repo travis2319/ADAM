@@ -1,13 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions, FlatList, Linking } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
 import axios from 'axios';
 import darkMapStyle from './mapStyles/darkMapStyle.json';
+import { router } from 'expo-router';
 const polyline = require('@mapbox/polyline') as any;
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = width * 0.3;
+const CARD_WIDTH = width * 0.29;
 
 const CATEGORIES = [
   { id: 'gas_station', name: 'Gas Station' },
@@ -27,7 +28,7 @@ const GOOGLE_API_KEY = 'AIzaSyB6Jrfjx3DX5SkrGKkP_tqn6jpsSwErY0U';
 export default function Maps() {
   const mapRef = useRef<MapView | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('gas_station');
-  const [mapType, setMapType] = useState<'standard' | 'satellite' | 'terrain' | 'hybrid'>('standard');
+  const [mapType, setMapType] = useState<'standard' | 'satellite' | 'terrain' | 'hybrid' | 'dark'>('standard');
   const [location, setLocation] = useState<Location.LocationObjectCoords | null>(null);
   const [places, setPlaces] = useState<any[]>([]);
   const [routeCoords, setRouteCoords] = useState<{ latitude: number; longitude: number }[]>([]);
@@ -52,6 +53,11 @@ export default function Maps() {
   useEffect(() => {
     if (location) fetchNearbyPlaces(selectedCategory);
   }, [selectedCategory, location]);
+
+
+   const BackArrow = () => (
+      <View style={{ width: 12, height: 12, borderLeftWidth: 3, borderBottomWidth: 3, borderColor: '#333', transform: [{ rotate: '45deg' }] }} />
+    );
 
   const fetchNearbyPlaces = async (type: string) => {
     try {
@@ -83,13 +89,37 @@ export default function Maps() {
     }
   };
 
-  const openInGoogleMaps = (lat: number, lng: number) => {
-    const url = `https://www.google.com/maps/dir/?api=1&origin=${location?.latitude},${location?.longitude}&destination=${lat},${lng}&travelmode=driving`;
-    Linking.openURL(url);
+  const startNavigation = (lat: number, lng: number) => {
+    const url = `google.navigation:q=${lat},${lng}&mode=d`;
+    Linking.openURL(url).catch(() => {
+      alert('Unable to open navigation. Make sure Google Maps is installed.');
+    });
   };
+
+  const closeCard = useCallback(() => {
+    setSelectedPlace(null);
+  }, []);
 
   return (
     <View style={styles.container}>
+            
+         <TouchableOpacity
+                  style={{ position: 'absolute', top: 0, left: 0, zIndex: 10, paddingTop: 30,paddingLeft: 12 }}
+                  onPress={() => router.back()}
+                >
+                  <View style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 20,
+                    backgroundColor: '#D9F0F7',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                    <BackArrow />
+                  </View>
+                </TouchableOpacity>
+             
+                
       <MapView
         ref={mapRef}
         provider={PROVIDER_GOOGLE}
@@ -116,6 +146,7 @@ export default function Maps() {
         )}
       </MapView>
 
+
       {/* Category Selector */}
       <View style={styles.carouselContainer}>
         <FlatList
@@ -138,18 +169,21 @@ export default function Maps() {
       {/* Selected Place Info Card */}
       {selectedPlace && (
         <View style={styles.bottomInfoCard}>
+          <TouchableOpacity style={styles.closeButton} onPress={closeCard}>
+            <Text style={styles.closeText}>×</Text>
+          </TouchableOpacity>
           <Text style={styles.placeName}>{selectedPlace.name}</Text>
           <Text style={styles.placeVicinity}>{selectedPlace.vicinity}</Text>
           <TouchableOpacity
             style={styles.directionsButton}
             onPress={() =>
-              openInGoogleMaps(
+              startNavigation(
                 selectedPlace.geometry.location.lat,
                 selectedPlace.geometry.location.lng
               )
             }
           >
-            <Text style={styles.directionsText}>Open in Google Maps</Text>
+            <Text style={styles.directionsText}>Start Navigation</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -159,10 +193,7 @@ export default function Maps() {
         {MAP_TYPES.map(({ label, type }) => (
           <TouchableOpacity
             key={type}
-            style={[
-              styles.mapTypeBox,
-              mapType === type && { borderColor: '#4682B4', borderWidth: 2 },
-            ]}
+            style={[styles.mapTypeBox, mapType === type && { borderColor: '#4682B4', borderWidth: 2 }]}
             onPress={() => setMapType(type as any)}
           >
             <View style={[styles.mapTypeImage, mapType === type && { opacity: 0.9 }]}>
@@ -184,6 +215,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     backgroundColor: '#E6F0FA',
     borderRadius: 20,
+    marginTop: 12,
     padding: 10,
     flexDirection: 'row',
     zIndex: 1,
@@ -203,6 +235,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     color: '#000',
+    textAlign: 'center',
+    marginTop: 5,
   },
   activeText: {
     color: '#fff',
@@ -220,6 +254,7 @@ const styles = StyleSheet.create({
   mapTypeBox: {
     alignItems: 'center',
     marginHorizontal: 5,
+    borderRadius: 15,
   },
   mapTypeImage: {
     width: 60,
@@ -248,6 +283,28 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
     elevation: 4,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 2, // Ensure the button is above other content
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  closeText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
   },
   placeName: {
     fontSize: 16,
