@@ -11,6 +11,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=mysecretpassword
       - POSTGRES_DB=mydb
+    networks:
+      - adam_network  # Connect to the custom network
 
   db:
     image: postgres:alpine
@@ -23,9 +25,16 @@ services:
       - postgres_data:/var/lib/postgresql/data # Fixed volume mount path
     ports:
       - "5432:5432"
+    networks:
+      - adam_network
+
 
 volumes:
   postgres_data: # Named volume for PostgreSQL data persistence
+
+networks:
+  adam_network:
+    external: true 
 
 # services:
 #   app:
