@@ -1,151 +1,274 @@
 import React, { useEffect, useRef, useState } from 'react';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import { StyleSheet, TouchableOpacity, View, Text, Dimensions, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, FlatList, Linking } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
+import axios from 'axios';
+import darkMapStyle from './mapStyles/darkMapStyle.json';
+const polyline = require('@mapbox/polyline') as any;
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 const CARD_WIDTH = width * 0.3;
 
-interface Category {
-    id: string;
-    name: string;
-}
-
-interface LocationData {
-    name: string;
-    latitude: number;
-    longitude: number;
-}
-
-const CATEGORIES: Category[] = [
-    { id: 'petrol', name: 'Petrol Pump' },
-    { id: 'service', name: 'Service Center' },
-    { id: 'carwash', name: 'Car Wash' },
+const CATEGORIES = [
+  { id: 'gas_station', name: 'Gas Station' },
+  { id: 'car_repair', name: 'Service Centre' },
+  { id: 'car_wash', name: 'Washing Centre' },
 ];
 
-const LOCATIONS: Record<string, LocationData[]> = {
-    petrol: [
-        { name: "City Fuels & Service", latitude: 15.273918, longitude: 73.957442 },
-        { name: "Highway Energy Station", latitude: 15.277022, longitude: 73.958448 },
-        { name: "Metro Petroleum", latitude: 15.291839, longitude: 73.9761 },
-    ],
-    service: [
-        { name: "AutoCare Spares", latitude: 15.273151, longitude: 73.980684 },
-        { name: "Luxury Car Service", latitude: 15.269786, longitude: 73.983527 },
-        { name: "Premium Auto Workshop", latitude: 15.267995, longitude: 73.961680 },
-    ],
-    carwash: [
-        { name: "GSL Service Center", latitude: 15.264492, longitude: 73.976166 },
-        { name: "Angle's Car Studio", latitude: 15.269147, longitude: 73.965574 },
-        { name: "Express Car Spa", latitude: 15.272896, longitude: 73.971444 },
-    ],
-};
+const MAP_TYPES = [
+  { label: 'Default', type: 'standard' },
+  { label: 'Dark', type: 'dark' },
+  { label: 'Satellite', type: 'hybrid' },
+  { label: 'Terrain', type: 'terrain' },
+];
+
+const GOOGLE_API_KEY = 'AIzaSyB6Jrfjx3DX5SkrGKkP_tqn6jpsSwErY0U';
 
 export default function Maps() {
-    const mapRef = useRef<MapView | null>(null);
-    const [selectedCategory, setSelectedCategory] = useState<string>('petrol');
+  const mapRef = useRef<MapView | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState('gas_station');
+  const [mapType, setMapType] = useState<'standard' | 'satellite' | 'terrain' | 'hybrid'>('standard');
+  const [location, setLocation] = useState<Location.LocationObjectCoords | null>(null);
+  const [places, setPlaces] = useState<any[]>([]);
+  const [routeCoords, setRouteCoords] = useState<{ latitude: number; longitude: number }[]>([]);
+  const [selectedPlace, setSelectedPlace] = useState<any | null>(null);
 
-    const requestLocationPermission = async () => {
-        try {
-            const { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                console.log('Permission to access location was denied');
-                return;
-            }
+  useEffect(() => {
+    (async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') return;
 
-            const location = await Location.getCurrentPositionAsync({});
-            const currentRegion = {
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude,
-                latitudeDelta: 0.05,
-                longitudeDelta: 0.05,
-            };
-            mapRef.current?.animateToRegion(currentRegion, 1000);
-        } catch (error) {
-            console.log('Error getting location', error);
-        }
-    };
+      const loc = await Location.getCurrentPositionAsync({});
+      setLocation(loc.coords);
+      mapRef.current?.animateToRegion({
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
+      }, 1000);
+    })();
+  }, []);
 
-    useEffect(() => {
-        requestLocationPermission();
-    }, []);
+  useEffect(() => {
+    if (location) fetchNearbyPlaces(selectedCategory);
+  }, [selectedCategory, location]);
 
-    return (
-        <View style={styles.container}>
-            <MapView
-                ref={mapRef}
-                style={styles.map}
-                provider={PROVIDER_GOOGLE}
-                showsUserLocation
-                showsMyLocationButton
+  const fetchNearbyPlaces = async (type: string) => {
+    try {
+      const res = await axios.get(
+        `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location?.latitude},${location?.longitude}&radius=5000&type=${type}&key=${GOOGLE_API_KEY}`
+      );
+      setPlaces(res.data.results);
+      setRouteCoords([]);
+      setSelectedPlace(null);
+    } catch (err) {
+      console.error('Failed to fetch places', err);
+    }
+  };
+
+  const getDirections = async (destLat: number, destLng: number, place: any) => {
+    try {
+      const res = await axios.get(
+        `https://maps.googleapis.com/maps/api/directions/json?origin=${location?.latitude},${location?.longitude}&destination=${destLat},${destLng}&key=${GOOGLE_API_KEY}`
+      );
+      const points = polyline.decode(res.data.routes[0].overview_polyline.points);
+      const coords = points.map(([lat, lng]: [number, number]) => ({
+        latitude: lat,
+        longitude: lng,
+      }));
+      setRouteCoords(coords);
+      setSelectedPlace(place);
+    } catch (err) {
+      console.error('Failed to get directions', err);
+    }
+  };
+
+  const openInGoogleMaps = (lat: number, lng: number) => {
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${location?.latitude},${location?.longitude}&destination=${lat},${lng}&travelmode=driving`;
+    Linking.openURL(url);
+  };
+
+  return (
+    <View style={styles.container}>
+      <MapView
+        ref={mapRef}
+        provider={PROVIDER_GOOGLE}
+        style={StyleSheet.absoluteFillObject}
+        showsUserLocation
+        showsMyLocationButton
+        mapType={mapType === 'dark' ? 'standard' : mapType}
+        customMapStyle={mapType === 'dark' ? darkMapStyle : []}
+      >
+        {places.map((place, index) => (
+          <Marker
+            key={index}
+            coordinate={{
+              latitude: place.geometry.location.lat,
+              longitude: place.geometry.location.lng,
+            }}
+            title={place.name}
+            description={place.vicinity}
+            onPress={() => getDirections(place.geometry.location.lat, place.geometry.location.lng, place)}
+          />
+        ))}
+        {routeCoords.length > 0 && (
+          <Polyline coordinates={routeCoords} strokeWidth={4} strokeColor="#007AFF" />
+        )}
+      </MapView>
+
+      {/* Category Selector */}
+      <View style={styles.carouselContainer}>
+        <FlatList
+          data={CATEGORIES}
+          horizontal
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[styles.categoryButton, selectedCategory === item.id && styles.activeButton]}
+              onPress={() => setSelectedCategory(item.id)}
             >
-                {LOCATIONS[selectedCategory].map((marker, index) => (
-                    <Marker 
-                        key={index} 
-                        coordinate={{ latitude: marker.latitude, longitude: marker.longitude }} 
-                        title={marker.name} 
-                    />
-                ))}
-            </MapView>
-            
-            <View style={styles.carouselContainer}>
-                <FlatList
-                    data={CATEGORIES}
-                    horizontal
-                    keyExtractor={(item) => item.id}
-                    contentContainerStyle={styles.carousel}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity
-                            style={[styles.categoryButton, selectedCategory === item.id && styles.activeButton]}
-                            onPress={() => setSelectedCategory(item.id)}
-                        >
-                            <Text style={[styles.buttonText, selectedCategory === item.id && styles.activeText]}>
-                                {item.name}
-                            </Text>
-                        </TouchableOpacity>
-                    )}
-                />
-            </View>
+              <Text style={[styles.buttonText, selectedCategory === item.id && styles.activeText]}>
+                {item.name}
+              </Text>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+
+      {/* Selected Place Info Card */}
+      {selectedPlace && (
+        <View style={styles.bottomInfoCard}>
+          <Text style={styles.placeName}>{selectedPlace.name}</Text>
+          <Text style={styles.placeVicinity}>{selectedPlace.vicinity}</Text>
+          <TouchableOpacity
+            style={styles.directionsButton}
+            onPress={() =>
+              openInGoogleMaps(
+                selectedPlace.geometry.location.lat,
+                selectedPlace.geometry.location.lng
+              )
+            }
+          >
+            <Text style={styles.directionsText}>Open in Google Maps</Text>
+          </TouchableOpacity>
         </View>
-    );
+      )}
+
+      {/* Map Type Selector */}
+      <View style={styles.mapTypesRow}>
+        {MAP_TYPES.map(({ label, type }) => (
+          <TouchableOpacity
+            key={type}
+            style={[
+              styles.mapTypeBox,
+              mapType === type && { borderColor: '#4682B4', borderWidth: 2 },
+            ]}
+            onPress={() => setMapType(type as any)}
+          >
+            <View style={[styles.mapTypeImage, mapType === type && { opacity: 0.9 }]}>
+              <Text style={{ fontSize: 10, color: '#fff' }}>{label}</Text>
+            </View>
+            <Text style={styles.mapTypeLabel}>{label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    map: {
-        flex: 1,
-    },
-    carouselContainer: {
-        position: 'absolute',
-        bottom: 20,
-        width: '100%',
-    },
-    carousel: {
-        paddingHorizontal: 10,
-    },
-    categoryButton: {
-        width: CARD_WIDTH,
-        padding: 10,
-        backgroundColor: '#fff',
-        borderRadius: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginHorizontal: 5,
-        elevation: 3,
-    },
-    activeButton: {
-        backgroundColor: '#007AFF',
-    },
-    buttonText: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        color: '#000',
-    },
-    activeText: {
-        color: '#fff',
-    },
+  container: { flex: 1 },
+  carouselContainer: {
+    position: 'absolute',
+    top: 60,
+    alignSelf: 'center',
+    backgroundColor: '#E6F0FA',
+    borderRadius: 20,
+    padding: 10,
+    flexDirection: 'row',
+    zIndex: 1,
+  },
+  categoryButton: {
+    width: CARD_WIDTH,
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    marginHorizontal: 5,
+    alignItems: 'center',
+  },
+  activeButton: {
+    backgroundColor: '#007AFF',
+  },
+  buttonText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  activeText: {
+    color: '#fff',
+  },
+  mapTypesRow: {
+    position: 'absolute',
+    bottom: 10,
+    alignSelf: 'center',
+    backgroundColor: '#E6F0FA',
+    borderRadius: 15,
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  mapTypeBox: {
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
+  mapTypeImage: {
+    width: 60,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: '#4682B4',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  mapTypeLabel: {
+    fontSize: 10,
+    fontWeight: '500',
+    color: '#333',
+  },
+  bottomInfoCard: {
+    position: 'absolute',
+    bottom: 100,
+    left: 20,
+    right: 20,
+    backgroundColor: '#fff',
+    padding: 12,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  placeName: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  placeVicinity: {
+    fontSize: 13,
+    color: '#555',
+    marginBottom: 8,
+  },
+  directionsButton: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  directionsText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
 });
 
 
@@ -390,3 +513,6 @@ const styles = StyleSheet.create({
 //         height: '100%',
 //     },
 // });
+
+
+
