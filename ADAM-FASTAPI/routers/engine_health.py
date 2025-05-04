@@ -24,7 +24,7 @@ def fetch_engine_health_data():
     try:
         logging.info("Fetching engine health data from the database.")
         conn = connect_to_db()
-        query = "SELECT * FROM obdtest;"
+        query = "SELECT * FROM kaiserskoda;"
         df = pd.read_sql(query, conn)
         conn.close()
         logging.info("Fetched data successfully. Sample rows:\n%s", df.head().to_string())
@@ -43,7 +43,7 @@ def preprocess_engine_health_data():
     try:
         logging.info("Starting preprocessing of engine health data.")
         conn = connect_to_db()
-        query = "SELECT * FROM obdtest;"
+        query = "SELECT * FROM kaiserskoda;"
         df = pd.read_sql(query, conn)
         conn.close()
 
@@ -119,7 +119,7 @@ def generate_engine_diagnosis():
         # Step 1: Fetch Data
         print("\n[1/4] Fetching engine diagnostic data...")
         conn = connect_to_db()
-        query = "SELECT * FROM obdtest;"
+        query = "SELECT * FROM kaiserskoda;"
         df = pd.read_sql(query, conn)
         conn.close()
         print("✓ Data fetched successfully")

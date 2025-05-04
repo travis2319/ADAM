@@ -22,7 +22,7 @@ def fetch_emissions_data():
     """
     try:
         conn = connect_to_db()
-        query = "SELECT * FROM obdtest;"
+        query = "SELECT * FROM kaiserskoda;"
         df = pd.read_sql(query, conn)
         conn.close()
 
@@ -40,7 +40,7 @@ def preprocess_emissions_data():
     global emissions_model
     try:
         conn = connect_to_db()
-        query = "SELECT * FROM obdtest;"
+        query = "SELECT * FROM kaiserskoda;"
         df = pd.read_sql(query, conn)
         conn.close()
 
@@ -98,7 +98,7 @@ def generate_compliance_and_plot_data():
         # Step 1: Fetch Data
         print("\n[1/4] Fetching emissions data...")
         conn = connect_to_db()
-        query = "SELECT * FROM obdtest;"
+        query = "SELECT * FROM kaiserskoda;"
         df = pd.read_sql(query, conn)
         conn.close()
         print("✓ Data fetched successfully")

@@ -59,7 +59,7 @@ def fetch_predictive_maintenance_summary():
     """Fetch predictive maintenance reports and calculate summaries."""
     try:
         conn = connect_to_db()
-        query = "SELECT * FROM obdtest;"
+        query = "SELECT * FROM kaiserskoda;"
         df = pd.read_sql(query, conn)
         conn.close()
 

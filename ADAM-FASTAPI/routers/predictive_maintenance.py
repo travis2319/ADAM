@@ -30,7 +30,7 @@ def fetch_maintenance_data():
     try:
         logging.info("Connecting to the database to fetch maintenance data.")
         conn = connect_to_db()
-        query = "SELECT * FROM obdtest;"  # Table name
+        query = "SELECT * FROM kaiserskoda;"  # Table name
         df = pd.read_sql(query, conn)
         conn.close()
 
@@ -51,7 +51,7 @@ def preprocess_maintenance_data():
     try:
         logging.info("Fetching data for preprocessing.")
         conn = connect_to_db()
-        query = "SELECT * FROM obdtest;"  # Table name
+        query = "SELECT * FROM kaiserskoda;"  # Table name
         df = pd.read_sql(query, conn)
         conn.close()
 
@@ -199,7 +199,7 @@ def generate_predictive_diagnosis():
         # Step 1: Fetch Data
         print("\n[1/4] Fetching maintenance data...")
         conn = connect_to_db()
-        query = "SELECT * FROM obdtest;"
+        query = "SELECT * FROM kaiserskoda;"
         df = pd.read_sql(query, conn)
         conn.close()
         print("✓ Data fetched successfully")

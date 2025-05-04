@@ -26,11 +26,6 @@ def connect_to_db():
         # Handling any database-related errors
         raise Exception(f"Database connection failed: {e}")
     
-    finally:
-        # Optional: Always close the connection (best practice)
-        if conn:
-            conn.close()
-            print("Connection closed.")
 
 
 # import os

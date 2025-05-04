@@ -32,7 +32,7 @@ const Analysis = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#EAF8FF' }}>
-      <ScrollView style={{ padding: 20, paddingTop: 70 }}>
+      <ScrollView style={{ padding: 20 }}>
         
           <DataCard 
           title={cardThemes.healthMonitoring.title}
