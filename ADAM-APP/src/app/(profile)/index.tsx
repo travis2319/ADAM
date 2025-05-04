@@ -1,6 +1,6 @@
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import Profile from '@/screens/tabs/Profile'
+import Profile from '@/screens/profile/Profile'
 
 const index = () => {
   return (

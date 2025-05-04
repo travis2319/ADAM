@@ -1,6 +1,6 @@
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import Licence from '@/screens/tabs/Licence'
+import Licence from '@/screens/profile/Licence'
 
 const licence = () => {
   return (

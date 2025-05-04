@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import EditProfile from '@/screens/tabs/EditProfile'
+import EditProfile from '@/screens/profile/EditProfile'
 
 const editProfile = () => {
   return (

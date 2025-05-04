@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import IdProof from '@/screens/tabs/IdProof'
+import IdProof from '@/screens/profile/IdProof'
 
 const idproof = () => {
   return (
