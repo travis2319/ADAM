@@ -2,7 +2,7 @@ import axios from 'axios';
 import { EmissionsData, HealthMonitoringData, PredictiveMaintenanceData } from '../types/analysis';
 
 // Configure base URL in a central place
-const baseURL = 'http://192.168.0.108:8000';
+const baseURL = 'http://192.168.30.63:8000';
 
 // Create a base axios instance with common configuration
 const apiClient = axios.create({
