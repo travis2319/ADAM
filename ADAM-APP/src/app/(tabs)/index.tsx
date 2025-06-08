@@ -82,7 +82,7 @@ export default function Home() {
             <Text style={{ fontSize: 16, color: '#fff', fontWeight: 'bold' }}>RPM</Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 8 }}>
-            <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#333' }}>1173.5</Text>
+            <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#333' }}>1453.5</Text>
             <Text style={{ fontSize: 12, color: '#555', marginLeft: 4, zIndex:3 }}>rpm</Text>
           </View>
         <Image
