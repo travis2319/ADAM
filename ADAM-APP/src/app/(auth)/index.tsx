@@ -23,7 +23,7 @@ const Login = () => {
     <View className={`flex-1 justify-center items-center ${isDarkMode ? 'bg-gray-900' : 'bg-yellow-50'} px-6`}>
       <View className={`w-full max-w-sm p-6 rounded-lg shadow-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
         <Text className={`text-2xl font-bold text-center ${isDarkMode ? 'text-white' : 'text-black'}`}>
-          Sports Buddy
+          LOGIN
         </Text>
         <Text className={`text-center mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
           Sign in to your account
