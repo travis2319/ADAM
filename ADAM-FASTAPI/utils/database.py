@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 
 # Correcting the default value for the host (to "localhost" or the service name in Docker)
-POSTGRES_HOST = os.getenv("POSTGRES_HOST", "db")  # 'db' matches the service name in Docker Compose
+POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")  # 'db' matches the service name in Docker Compose
 POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
 POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "mysecretpassword")

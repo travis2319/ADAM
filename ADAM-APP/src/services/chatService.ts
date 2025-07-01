@@ -1,7 +1,7 @@
 // services/chatService.ts
 import { Alert } from 'react-native';
 
-const BASE_URL = 'http://192.168.208.63:8000';
+const BASE_URL = 'http://192.168.0.110:8000';
 const USERNAME = 'user';
 const PASSWORD = 'password';
 
